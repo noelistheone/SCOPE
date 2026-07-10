@@ -1,0 +1,15 @@
+# Amazon-Electronics (MMRec preprocessed). Bonus dataset.
+dataset: elec
+data_path: data/elec
+
+inter_file_name: elec.inter
+inter_separator: "\t"
+
+user_id_field: userID
+item_id_field: itemID
+split_field: x_label
+
+vision_feature_file: image_feat.npy
+text_feature_file: text_feat.npy
+
+# Larger than baby/sports/clothing. Expect heavier training cost.

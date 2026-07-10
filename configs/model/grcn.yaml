@@ -1,0 +1,9 @@
+model: GRCN
+
+embedding_size: 64
+latent_embedding: 64       # CGCN content dim (dim_C)
+n_layers: 2                # CGCN routing iterations
+reg_weight: 1.0e-3
+dropout: 0.0               # user-item edge dropout
+learning_rate: 0.0005
+train_batch_size: 2048

@@ -1,0 +1,43 @@
+model: GUME
+
+# GUME (CIKM 2024) — ported into this framework (official author implementation).
+# Reported R@20 ~0.1042 / 0.1165 / 0.1024 on baby / sports / clothing.
+# HPs are the official GUME.yaml values; the active block below is the BABY setting
+# (the default uncommented block in the source). Per-dataset overrides noted inline.
+embedding_size: 64
+learning_rate: 0.001
+train_batch_size: 2048
+
+knn_k: 10                 # image/text item-item kNN neighbours per item
+n_ui_layers: 3            # user-item LightGCN layers (UI graph augmented w/ item-item block)
+bm_loss: 0.01             # behaviour-modality InfoNCE weight
+reg_weight_1: 1.0e-5      # BPR embedding L2
+reg_weight_2: 0.1         # extended-it item L2
+
+# --- baby (default) ---
+n_layers: 2               # item-item modality-graph layers
+bm_temp: 0.4
+um_loss: 0.01             # user-modality InfoNCE weight
+um_temp: 0.1
+vt_loss: 0.1              # variance/mean alignment weight
+
+# --- sports ---
+# n_layers: 1
+# bm_temp: 0.2
+# um_loss: 0.01
+# um_temp: 0.1
+# vt_loss: 0.01
+
+# --- clothing ---
+# n_layers: 1
+# bm_temp: 0.2
+# um_loss: 0.1
+# um_temp: 0.2
+# vt_loss: 0.001
+
+# --- elec ---
+# n_layers: 1
+# bm_temp: 0.2
+# um_loss: 0.1
+# um_temp: 0.2
+# vt_loss: 0.1

@@ -1,0 +1,23 @@
+model: DAMRS
+
+# DA-MRS (KDD 2024) — ported into this framework (upstream: https://github.com/enoche/MMRec).
+# Denoising + aligning multimodal recommender: LightGCN user-item backbone with
+# visual/text knn item-item graphs + a co-occurrence "session" item-item graph,
+# denoising BPR + neighbor-discrimination CL + symmetric KL alignment.
+embedding_size: 64
+feat_embed_dim: 64
+
+n_ui_layers: 2             # user-item LightGCN layers
+n_mm_layers: 1             # item-item modality/session graph propagation layers
+knn_k: 10                  # top-k for the visual/text knn item-item graphs
+item_graph_k: 2            # top-k item neighbors for the co-occurrence session graph (official build_iib_graph.py: --topk=2 -> item_graph_dict2.npy)
+item_graph_min_cooc: 2     # min shared-user co-occurrence to keep a session edge (gen_item_matrix keeps inter_len >= 2 only)
+
+kl_weight: 1.0             # symmetric-KL modality-alignment weight
+neighbor_weight: 0.001     # neighbor-discrimination contrastive weight
+reg_weight: 0.0            # (read by source __init__; unused in the loss)
+lambda_coeff: 0.9          # (read by source __init__)
+cf_model: lightgcn         # (read by source __init__)
+
+learning_rate: 0.001
+train_batch_size: 2048

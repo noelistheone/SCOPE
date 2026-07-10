@@ -1,0 +1,13 @@
+model: SMORE
+
+# SMORE (WSDM 2025) — ported into this framework. Official code: https://github.com/kennethorq/SMORE
+embedding_size: 64
+n_ui_layers: 3             # user-item LightGCN layers
+n_layers: 1                # item-item modality-graph layers
+image_knn_k: 10
+text_knn_k: 10
+cl_loss: 0.01              # InfoNCE contrastive weight
+reg_weight: 1.0e-4
+dropout_rate: 0.1
+learning_rate: 0.001
+train_batch_size: 2048

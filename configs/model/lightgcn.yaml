@@ -1,0 +1,7 @@
+model: LightGCN
+
+embedding_size: 64
+n_layers: 3
+reg_weight: 1.0e-4
+learning_rate: 0.001
+train_batch_size: 2048

@@ -1,0 +1,51 @@
+# Recsys global defaults.
+# Layered on top by: configs/dataset/<ds>.yaml -> configs/model/<m>.yaml -> CLI overrides.
+
+# ---- Reproducibility & devices ----
+seed: 2024
+gpu_id: 0
+device: cuda          # "cuda" or "cpu"; overridden by CLI when verifying
+cudnn_deterministic: true
+cudnn_benchmark: false
+use_amp: false        # mixed precision off by default for determinism
+
+# ---- CPU resource caps (anti-thrashing) ----
+cpu_threads: 4
+# num_workers=0 (in-process) avoids forked-worker RAM duplication; the
+# multi-worker overhead from copying user_pos_dict pushed Sports/Clothing
+# runs over 31 GB RAM and triggered OOM-killer. In-process is plenty fast
+# given that the train_loader is small.
+num_workers: 0
+
+# ---- Training ----
+epochs: 1000
+train_batch_size: 2048
+learner: adam         # adam | adamw | sgd
+learning_rate: 0.001
+weight_decay: 0.0
+clip_grad_norm: 0.0   # 0 = no clip
+learning_rate_scheduler: null   # e.g. [step_size, gamma] for StepLR
+
+# ---- Evaluation ----
+eval_step: 1
+eval_batch_size: 4096
+eval_batch_size_users: 1024   # chunk full-sort by this many users
+stopping_step: 20             # early-stopping patience
+metrics: [Recall, NDCG, Precision, MAP]
+topk: [5, 10, 20, 50]
+valid_metric: Recall@20
+
+# ---- Embedding ----
+embedding_size: 64
+reg_weight: 1.0e-4
+
+# ---- Negative sampling ----
+neg_sampling_ratio: 1
+neg_sampling_max_tries: 100   # uniform sampler safety bound
+
+# ---- Output paths (relative to project root) ----
+ckpt_dir: ckpts
+log_dir: logs
+
+# ---- Misc ----
+show_progress: true

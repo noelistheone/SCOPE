@@ -1,0 +1,15 @@
+# Amazon-Sports (MMRec preprocessed).
+dataset: sports
+data_path: data/sports
+
+inter_file_name: sports.inter
+inter_separator: "\t"
+
+user_id_field: userID
+item_id_field: itemID
+split_field: x_label
+
+vision_feature_file: image_feat.npy
+text_feature_file: text_feat.npy
+
+# n_users ~= 35598, n_items ~= 18357, n_interactions ~= 296337

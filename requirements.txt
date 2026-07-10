@@ -1,0 +1,18 @@
+# SCOPE — Python 3.10
+# Pinned to the versions used for the reported results.
+
+torch==2.4.0
+torch_scatter==2.1.2
+numpy==1.26.4
+pandas==2.3.3
+scipy==1.15.3
+scikit-learn==1.7.2
+optuna==4.8.0
+tensorboard==2.20.0
+PyYAML==6.0.3
+einops==0.8.2
+tqdm==4.67.3
+
+# Data download & tests
+gdown>=5.0.0
+pytest>=8.0.0

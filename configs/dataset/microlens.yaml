@@ -1,0 +1,17 @@
+# MicroLens (short-video recommendation; MMRec-preprocessed). Cross-domain
+# (non-Amazon) generalization dataset: micro-video clicks, not product co-purchase.
+# Source: MMRec data release (westlake-repl/MicroLens), 1024-d visual + 1024-d text.
+dataset: microlens
+data_path: data/microlens
+
+inter_file_name: microlens.inter
+inter_separator: "\t"
+
+user_id_field: userID
+item_id_field: itemID
+split_field: x_label        # 0=train, 1=valid, 2=test (MMRec convention)
+
+vision_feature_file: image_feat.npy
+text_feature_file: text_feat.npy
+
+# n_users ~= 98129, n_items ~= 17228, n_interactions ~= 705174

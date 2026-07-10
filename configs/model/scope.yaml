@@ -1,0 +1,11 @@
+# SCOPE — set-completion recommender.
+# The SCOPE scripts under scope/ read the dataset layout and multimodal features
+# through this model config (paths come from configs/dataset/<ds>.yaml). SCOPE has
+# no trained user parameters; the head dimension and fusion weights below are the
+# defaults reported in the paper, overridable from the command line.
+model: SCOPE
+
+embedding_size: 256        # set-completion head dimension d
+learning_rate: 0.003
+train_batch_size: 8192
+reg_weight: 1.0e-6
