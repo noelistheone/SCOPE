@@ -127,7 +127,11 @@ evaluation; results are written as JSON under `results/`.
 | Masking-ratio ablation                                | `scope/masking_ratio.py`            |
 | Set-completion task diagnostics                       | `scope/setcompletion_task.py`       |
 | Kernel complementarity                                | `scope/kernel_complementarity.py`   |
+| Masked/sequential neighbours (BERT4Rec, SASRec, Mult-VAE) | `scope/masked_neighbors.py`      |
+| Few-shot cold-start (SCOPE-v1/G vs. inductive baselines)  | `scope/coldstart_fewshot.py`     |
+| SCOPE-G tail-popularity stratification                | `scope/scope_g_tail.py`             |
 | Efficiency (wall-clock / memory)                      | `scope/efficiency.py`               |
+| Efficiency / accuracy Pareto figure                   | `scope/pareto_figure.py`            |
 | Dataset statistics                                    | `scope/dataset_stats.py`            |
 
 Statistical significance uses a paired, user-level bootstrap
