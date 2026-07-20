@@ -22,7 +22,7 @@ from scope import (Rmat, build_lists, closed_form_base, SCOPE, evalS_trusted, zr
 
 CK = ROOT / "ckpts" / "scope"
 PRED = ROOT / "results" / "baseline_scores"
-OUT = ROOT / "results" / "scope" / "exp_design"; OUT.mkdir(parents=True, exist_ok=True)
+OUT = ROOT / "results" / "scope" / "significance"; OUT.mkdir(parents=True, exist_ok=True)
 GRID = [0.0, 0.3, 0.6, 1.0, 1.5, 2.0, 3.0]
 
 

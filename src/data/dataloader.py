@@ -16,7 +16,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from src.data.dataset import RecDataset
 
-LOGGER = logging.getLogger("recsys.data")
+LOGGER = logging.getLogger("scope.data")
 
 
 # =====================================================================

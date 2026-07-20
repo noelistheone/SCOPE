@@ -21,7 +21,7 @@ from src.evaluation.topk_evaluator import TopKEvaluator
 from src.utils.early_stopping import EarlyStopper
 from src.utils.misc import dict_to_str, ensure_dir, get_local_time
 
-LOGGER = logging.getLogger("recsys.trainer")
+LOGGER = logging.getLogger("scope.trainer")
 
 
 def _build_optimizer(name: str, params, lr: float,

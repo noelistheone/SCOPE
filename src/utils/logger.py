@@ -11,7 +11,7 @@ _LOGGER_FORMAT = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 _DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
-def build_logger(name: str = "recsys",
+def build_logger(name: str = "scope",
                  log_dir: Optional[str | Path] = None,
                  level: int = logging.INFO,
                  console: bool = True) -> logging.Logger:

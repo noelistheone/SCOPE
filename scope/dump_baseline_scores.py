@@ -73,6 +73,7 @@ def main():
         u = torch.arange(s, e, device=dev, dtype=torch.long)
         out[s:e] = model.full_sort_predict({"user": u}).float().cpu().numpy()
     pth = ROOT / "results" / "baseline_scores" / f"{a.model}_{a.dataset}_scores.npy"
+    pth.parent.mkdir(parents=True, exist_ok=True)
     np.save(pth, out)
     print(f"  saved {pth.name} {out.shape} in {time.time()-t0:.1f}s", flush=True)
 

@@ -76,7 +76,7 @@ def oom_safe(fn: Callable[..., _T]) -> Callable[..., _T]:
         try:
             return fn(*args, **kwargs)
         except torch.cuda.OutOfMemoryError as e:  # type: ignore[attr-defined]
-            log = logging.getLogger("recsys.resource")
+            log = logging.getLogger("scope.resource")
             log.error("CUDA OOM in %s. Memory summary:\n%s",
                       fn.__qualname__, torch.cuda.memory_summary())
             torch.cuda.empty_cache()

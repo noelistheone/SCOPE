@@ -54,6 +54,10 @@ pip install -r requirements.txt
 python scripts/verify_env.py                           # imports + CUDA check
 ```
 
+Note: `torch_scatter` and `torch_geometric` wheels must match your torch/CUDA
+build — if `pip` cannot resolve them, install from the matching wheel index,
+e.g. `pip install torch_scatter torch_geometric -f https://data.pyg.org/whl/torch-2.4.0+cu121.html`.
+
 ## Data
 
 The Amazon datasets use the standard MMRec-preprocessed splits and frozen
@@ -114,25 +118,32 @@ evaluation; results are written as JSON under `results/`.
 
 ## Reproducing the analyses
 
-| Claim in the paper                                    | Script                              |
+Each supplement table/figure maps to its generating script (run order: train
+`scope/scope.py` and `scope/scope_g.py` first — both save their checkpoints under
+`ckpts/scope/` — and dump any needed baseline score matrices with
+`scope/dump_baseline_scores.py`):
+
+| Paper item                                            | Script                              |
 |-------------------------------------------------------|-------------------------------------|
-| Significance vs. strong CF + attribution ladder       | `scope/significance_ladder.py`      |
-| Item cold-start (genuinely unseen items)              | `scope/coldstart_item.py`           |
-| Inductive scoring of unseen users/items               | `scope/inductive_coldstart.py`, `scope/inductive_baselines.py` |
-| Leakage screen (train/test-alignment)                 | `scope/leakage_protocol.py`         |
-| User-activity stratification                          | `scope/stratify_setsize.py`         |
-| Embedding-dimension robustness                        | `scope/scope.py --d {32,64,128,256,512}` |
-| View-ablation / ensemble controls                     | `scope/ensemble_control.py`, `scope/scope_u_ablate_ease.py` |
-| Task-formulation flip (co-purchase AUC vs. ranking)   | `scope/copurchase_auc.py`, `scope/content_ranking_null.py`, `scope/cfblind_probe.py` |
+| Table 1 / S14 (main results, multi-seed)              | `src/main.py` (baselines), `scope/scope.py`, `scope/scope_g.py`, `scope/ensemble_control.py`; Elec: `scope/scope_elec.py` |
+| Table S1 (dataset statistics)                         | `scope/dataset_stats.py`            |
+| Table S2 + Fig. S1 (efficiency, Pareto)               | `scope/efficiency.py`, `scope/pareto_figure.py` |
+| Table S3 (user-activity stratification)               | `scope/stratify_setsize.py`         |
+| Table S4 (leakage screen, train/test-alignment)       | `scope/leakage_protocol.py`         |
+| Table S5 (component attribution, null towers)         | `scope/kernel_complementarity.py`, `scope/content_ranking_null.py` |
+| Table S6 (build-up ladder)                            | `scope/significance_ladder.py`      |
+| Table S7 (composition: SCOPE-v2/U)                    | `scope/ensemble_control.py`, `scope/scope_u_ablate_ease.py` |
+| Table S8 (backbone portability, 4 backbones)          | `scope/backbone_transfer.py`        |
+| Table S9 (masked/AE neighbours: BERT4Rec, SASRec, Mult-VAE, item2vec) | `scope/masked_neighbors.py` |
+| Table S10 (inductive new users + EASE-inductive)      | `scope/inductive_baselines.py`, `scope/coldstart_fewshot.py` |
+| Table S11 (item cold-start, unseen items)             | `scope/coldstart_item.py`, `scope/inductive_coldstart.py` |
+| Table S12 (paired bootstrap significance)             | `scope/significance_ladder.py`      |
+| Table S13 (embedding-dimension sweep)                 | `scope/scope.py --d {32,64,128,256,512}` |
+| Fig. S2 (fusion-weight sweep)                         | `scope/gamma_sweep.py`              |
+| Fig. S3 + S4 (coverage, per-user breadth)             | `scope/coverage_breadth.py`         |
+| SCOPE-G tail-popularity analysis                      | `scope/scope_g_tail.py`             |
 | Masking-ratio ablation                                | `scope/masking_ratio.py`            |
 | Set-completion task diagnostics                       | `scope/setcompletion_task.py`       |
-| Kernel complementarity                                | `scope/kernel_complementarity.py`   |
-| Masked/sequential neighbours (BERT4Rec, SASRec, Mult-VAE) | `scope/masked_neighbors.py`      |
-| Few-shot cold-start (SCOPE-v1/G vs. inductive baselines)  | `scope/coldstart_fewshot.py`     |
-| SCOPE-G tail-popularity stratification                | `scope/scope_g_tail.py`             |
-| Efficiency (wall-clock / memory)                      | `scope/efficiency.py`               |
-| Efficiency / accuracy Pareto figure                   | `scope/pareto_figure.py`            |
-| Dataset statistics                                    | `scope/dataset_stats.py`            |
 
 Statistical significance uses a paired, user-level bootstrap
 (`scope/harness.py`).

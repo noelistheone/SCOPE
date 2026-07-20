@@ -32,7 +32,7 @@ def main() -> int:
         print(f"FATAL: numpy import failed: {e}", file=sys.stderr)
         return 1
     for mod_name in ("pandas", "scipy", "sklearn", "yaml", "optuna",
-                     "tensorboard", "einops", "tqdm"):
+                     "tensorboard", "einops", "tqdm", "torch_geometric", "matplotlib"):
         try:
             mod = __import__(mod_name)
             ver = getattr(mod, "__version__", "?")

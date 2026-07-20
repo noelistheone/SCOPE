@@ -126,6 +126,64 @@ def train_settf(dset, items, vmask, deg, gev, R, init, causal, epochs=250, lr=1e
 
 
 # ----------------------------------------------------------------------------- Mult-VAE
+class CBOW(nn.Module):
+    """item2vec/CBOW head: mean-pool of observed item embeddings, temperature-scaled cosine. No MLP encoder."""
+    def __init__(self, n_items, d=256, init=None):
+        super().__init__()
+        self.E = nn.Parameter(torch.randn(n_items, d) / math.sqrt(d))
+        if init is not None:
+            self.E.data.copy_(init)
+        self.logtau = nn.Parameter(torch.tensor(math.log(0.1)))
+
+    def latent(self, ctx_sum, n):
+        return ctx_sum / n.clamp(min=1).unsqueeze(1)          # plain mean-pool
+
+    def logits_from(self, z):
+        return (F.normalize(z, 1) @ F.normalize(self.E, 1).t()) / self.logtau.exp().clamp(min=1e-3)
+
+    @torch.no_grad()
+    def score_all(self, R, deg, half=False):
+        S = self.logits_from(self.latent(torch.sparse.mm(R, self.E), deg))
+        return S.half() if half else S
+
+
+def train_cbow(dset, R, items, vmask, deg, gev, epochs=300, lr=3e-3, bs=8192, patience=18, seed=2024):
+    """item2vec/CBOW under the identical masked-set-completion softmax (no encoder, no isotropy term)."""
+    torch.manual_seed(seed); np.random.seed(seed); random.seed(seed)
+    m = CBOW(dset.n_items, 256).to(DEV)
+    opt = torch.optim.Adam(m.parameters(), lr=lr, weight_decay=1e-6)
+    tu = torch.where(deg >= 2)[0]; degf = deg.float()
+    half = dset.n_items > 20000 or dset.n_users > 50000
+    best = {"r": -1}; bad = 0
+    for ep in range(epochs):
+        m.train(); perm = tu[torch.randperm(tu.numel(), device=DEV)]
+        for i in range(0, perm.numel(), bs):
+            b = perm[i:i + bs]
+            it = items[b]; vm = vmask[b]; dg = deg[b]
+            keys = torch.where(vm > 0, torch.rand_like(vm), torch.full_like(vm, 1e9))
+            ranks = keys.argsort(1).argsort(1).float()
+            nctx = (torch.rand(dg.shape, device=DEV) * (dg - 1).clamp(min=1)).floor() + 1
+            nctx = torch.minimum(nctx, (dg - 1).clamp(min=1))
+            ctx = ((ranks < nctx.unsqueeze(1)) & (vm > 0)).float()
+            tgt = ((ranks >= nctx.unsqueeze(1)) & (vm > 0)).float()
+            z = m.latent((m.E[it] * ctx.unsqueeze(2)).sum(1), ctx.sum(1))
+            logits = m.logits_from(z)
+            bidx = torch.arange(b.numel(), device=DEV).unsqueeze(1).expand_as(it); cm = ctx > 0
+            logits = logits.index_put((bidx[cm], it[cm]), torch.tensor(-1e9, device=DEV))
+            logp = F.log_softmax(logits, 1)
+            loss = -((logp[bidx, it] * tgt).sum(1) / tgt.sum(1).clamp(min=1)).mean()
+            opt.zero_grad(); loss.backward(); opt.step()
+        if ep % 4 == 0 or ep == epochs - 1:
+            m.eval(); vr = gev.eval(m.score_all(R, degf, half=half))["Recall@20"]
+            if vr > best["r"]:
+                best = {"r": vr, "state": {k: v.detach().clone() for k, v in m.state_dict().items()}}; bad = 0
+            else: bad += 1
+            print(f"[cbow] ep{ep:3d} val_R20={vr:.4f} best={best['r']:.4f}", flush=True)
+            if bad >= patience: break
+    m.load_state_dict(best["state"]); m.eval()
+    return m
+
+
 class MultVAE(nn.Module):
     def __init__(self, n_items, hidden=600, latent=200, dropout=0.5):
         super().__init__()
@@ -250,6 +308,9 @@ def run(ds):
     # ---- SASRec (causal, order-free set) ----
     msq = train_settf(dset, items, vmask, deg, gev, R, init, causal=True)
     eval_competitor("sasrec", msq.score_all(items, vmask, half=half)); del msq; torch.cuda.empty_cache()
+    # ---- item2vec/CBOW (mean-pool, no encoder) ----
+    mc = train_cbow(dset, R, items, vmask, deg, gev)
+    eval_competitor("item2vec_cbow", mc.score_all(R, degf, half=half).float()); del mc; torch.cuda.empty_cache()
     # ---- Mult-VAE (autoencoder) ----
     Svae = train_multvae(dset, R, gev)
     eval_competitor("multvae", Svae); torch.cuda.empty_cache()

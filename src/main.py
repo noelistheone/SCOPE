@@ -31,11 +31,11 @@ from src.utils import (
     set_seed,
 )
 
-LOGGER_NAME = "recsys.main"
+LOGGER_NAME = "scope.main"
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Recsys baseline runner")
+    parser = argparse.ArgumentParser(description="SCOPE baseline runner")
     parser.add_argument("--model", required=True, type=str)
     parser.add_argument("--dataset", required=True, type=str)
     parser.add_argument("--gpu", type=int, default=None,

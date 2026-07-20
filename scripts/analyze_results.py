@@ -72,7 +72,7 @@ def main() -> int:
     out_md = Path(args.output_md)
     out_md.parent.mkdir(parents=True, exist_ok=True)
     with out_md.open("w", encoding="utf-8") as f:
-        f.write("# Recsys Baseline Summary\n\n")
+        f.write("# SCOPE Baseline Summary\n\n")
         for ds in datasets:
             f.write(f"## Amazon-{ds}\n\n")
             f.write("| Model | best_epoch | train (min) | "

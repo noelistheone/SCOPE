@@ -94,7 +94,7 @@ def train(dataset, d=256, K=1, lr=3e-3, le=1.0, lz=0.0, epochs=220, bs=8192, pat
     torch.manual_seed(seed); np.random.seed(seed); random.seed(seed)
     dset = RecDataset(Config("scope", dataset))
     R = Rmat(dset); items, vmask, deg = build_lists(dset); degf = deg.float()
-    bar_r, bar_n = BAR[dataset]
+    bar_r, bar_n = BAR.get(dataset, (0.0597, 0.0270))   # fallback bar = LGMRec on Elec
     gev = GPUEval(dset, "valid", DEV)
     G = (R.to_dense().t() @ R.to_dense()) if False else None
     half = dset.n_items > 20000 or dset.n_users > 50000
@@ -126,6 +126,7 @@ def train(dataset, d=256, K=1, lr=3e-3, le=1.0, lz=0.0, epochs=220, bs=8192, pat
             print(f"[{dataset}] SCOPE-G K{K} ep{ep:3d} val_R20={vr:.4f} best={best['r']:.4f}", flush=True)
             if bad >= patience: print(f"[{dataset}] early stop ep{ep}", flush=True); break
     model.load_state_dict(best["state"]); model.eval()
+    torch.save(best["state"], CK / f"scope_g_{dataset}.pt")   # consumed by coldstart_fewshot.py
     Sz = zr(model.score_all(R, degf, A))
     pure = evalS_trusted(Sz, dset, "test")
     bg = (0.0, gev.eval(Sz)["Recall@20"])

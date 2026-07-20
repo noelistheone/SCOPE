@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 
-LOGGER = logging.getLogger("recsys.data")
+LOGGER = logging.getLogger("scope.data")
 
 _TRAIN_LABEL = 0
 _VALID_LABEL = 1

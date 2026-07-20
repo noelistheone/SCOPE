@@ -1,4 +1,4 @@
-# Recsys global defaults.
+# SCOPE global defaults.
 # Layered on top by: configs/dataset/<ds>.yaml -> configs/model/<m>.yaml -> CLI overrides.
 
 # ---- Reproducibility & devices ----
