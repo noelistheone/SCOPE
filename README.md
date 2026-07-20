@@ -137,7 +137,8 @@ Each supplement table/figure maps to its generating script (run order: train
 | Table S9 (masked/AE neighbours: BERT4Rec, SASRec, Mult-VAE, item2vec) | `scope/masked_neighbors.py` |
 | Table S10 (inductive new users + EASE-inductive)      | `scope/inductive_baselines.py`, `scope/coldstart_fewshot.py` |
 | Table S11 (item cold-start, unseen items)             | `scope/coldstart_item.py`, `scope/inductive_coldstart.py` |
-| Table S12 (paired bootstrap significance)             | `scope/significance_ladder.py`      |
+| Table S12 (paired bootstrap significance, incl. SCOPE-v2) | `scope/significance_ladder.py` (needs the `gume` and `freedom` score dumps) |
+| Table S14 (multi-seed, incl. SCOPE-v2)                | `scope/ensemble_control.py --datasets <ds> --seed {2024,2025,2026}` |
 | Table S13 (embedding-dimension sweep)                 | `scope/scope.py --d {32,64,128,256,512}` |
 | Fig. S2 (fusion-weight sweep)                         | `scope/gamma_sweep.py`              |
 | Fig. S3 + S4 (coverage, per-user breadth)             | `scope/coverage_breadth.py`         |

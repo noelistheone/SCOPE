@@ -1,12 +1,14 @@
 """Significance vs a strong CF baseline + attribution ladder with per-step bootstrap.
 
-For each dataset we build the z-scored views (base = EASE+text, set = SCOPE head, gume = GUME),
+For each dataset we build the z-scored views (base = EASE+text, set = SCOPE head, gume = GUME,
+col = FREEDOM),
 gate-select the ladder on VALIDATION Recall@20:
     L0 = base               (the parameter-free closed-form base)
     L1 = base + set         (SCOPE-v1: gate over [base,set])
     L2 = base + set + gume   (SCOPE-U: gate over [base,set,gume])
 then compute TEST per-user Recall@20 for L0,L1,L2 and GUME and run paired user-level bootstraps:
-    (#1) significance vs the strongest baseline GUME:  L1-GUME, L2-GUME
+    (#1) significance vs the strongest baseline GUME:  L1-GUME, L2-GUME, and SCOPE-v2-GUME
+         (SCOPE-v2 = gate over [base,set,FREEDOM], the FREEDOM-backbone composed variant)
     (#2) attribution-ladder marginals:                  set-marginal=L1-L0, CF-marginal=L2-L1
 Writes results/scope/significance_ladder_<ds>.json. GPU. Usage: python significance_ladder.py [datasets...]
 """
@@ -38,12 +40,14 @@ def run(ds, seed=2024):
     with torch.no_grad():
         V_set = zr(m.score_all(R, degf)).to(dt)
     V_gume = zr(torch.from_numpy(np.load(ROOT / "results" / "baseline_scores" / f"gume_{ds}_scores.npy")).to(dt).to(DEV))
-    views = {"item": V_item, "set": V_set, "gume": V_gume}
+    V_col = zr(torch.from_numpy(np.load(ROOT / "results" / "baseline_scores" / f"freedom_{ds}_scores.npy")).to(dt).to(DEV))
+    views = {"item": V_item, "set": V_set, "gume": V_gume, "col": V_col}
 
     # ladder models, gate-selected on validation
     w1, S1 = gate_select(views, ["item", "set"], gev)          # L1 = base + set  (SCOPE-v1)
     wg, Sg = gate_select(views, ["item", "gume"], gev)         # Lg = base + gume (set-free CF ensemble)
     w2, S2 = gate_select(views, ["item", "set", "gume"], gev)  # L2 = base + set + gume (SCOPE-U)
+    wv2, Sv2 = gate_select(views, ["col", "item", "set"], gev) # SCOPE-v2 = base + set + FREEDOM
     S0 = V_item                                                # L0 = base
 
     # point test metrics (trusted evaluator)
@@ -51,6 +55,7 @@ def run(ds, seed=2024):
           "base+set": evalS_trusted(S1, dset, "test"),
           "base+gume": evalS_trusted(Sg, dset, "test"),
           "scope_u": evalS_trusted(S2, dset, "test"),
+          "scope_v2": evalS_trusted(Sv2, dset, "test"),
           "gume": evalS_trusted(V_gume, dset, "test")}
 
     # per-user TEST Recall@20 (aligned across views via the same test evaluator)
@@ -58,16 +63,18 @@ def run(ds, seed=2024):
     ru1 = gevT.recall_per_user(S1).cpu().numpy()
     rug = gevT.recall_per_user(Sg).cpu().numpy()
     ru2 = gevT.recall_per_user(S2).cpu().numpy()
+    ruv2 = gevT.recall_per_user(Sv2).cpu().numpy()
     ruG = gevT.recall_per_user(V_gume).cpu().numpy()
 
     res = {
         "dataset": ds, "seed": seed,
-        "gate_v1": list(w1), "gate_basegume": list(wg), "gate_u": list(w2),
+        "gate_v1": list(w1), "gate_basegume": list(wg), "gate_u": list(w2), "gate_v2": list(wv2),
         "point_R20": {k: v["Recall@20"] for k, v in pt.items()},
         "point_N20": {k: v["NDCG@20"] for k, v in pt.items()},
         # (#1) significance vs strongest baseline GUME
         "v1_vs_gume": paired_bootstrap(ru1, ruG),
         "u_vs_gume": paired_bootstrap(ru2, ruG),
+        "v2_vs_gume": paired_bootstrap(ruv2, ruG),            # composed FREEDOM-backbone variant
         # (#2) attribution-ladder marginals, both decomposition orders
         "set_over_base": paired_bootstrap(ru1, ru0),          # base -> +set
         "gume_over_base": paired_bootstrap(rug, ru0),         # base -> +GUME  (the big CF lever)
@@ -78,10 +85,11 @@ def run(ds, seed=2024):
     print(f"[{ds}] R@20 base={pt['base']['Recall@20']:.4f} base+set={pt['base+set']['Recall@20']:.4f} "
           f"base+gume={pt['base+gume']['Recall@20']:.4f} U={pt['scope_u']['Recall@20']:.4f} GUME={pt['gume']['Recall@20']:.4f}", flush=True)
     print(f"   U-vs-GUME  d={res['u_vs_gume']['mean_delta']:+.4f} ci={[round(x,4) for x in res['u_vs_gume']['ci95']]} p={res['u_vs_gume']['p_two_sided']:.2g}", flush=True)
+    print(f"   v2-vs-GUME d={res['v2_vs_gume']['mean_delta']:+.4f} ci={[round(x,4) for x in res['v2_vs_gume']['ci95']]} p={res['v2_vs_gume']['p_two_sided']:.2g}", flush=True)
     print(f"   set/base d={res['set_over_base']['mean_delta']:+.4f} p={res['set_over_base']['p_two_sided']:.2g} | "
           f"GUME/base d={res['gume_over_base']['mean_delta']:+.4f} p={res['gume_over_base']['p_two_sided']:.2g} | "
           f"set/(base+GUME) d={res['set_over_basegume']['mean_delta']:+.4f} p={res['set_over_basegume']['p_two_sided']:.2g}", flush=True)
-    del V_item, V_set, V_gume, S1, Sg, S2; torch.cuda.empty_cache()
+    del V_item, V_set, V_gume, V_col, S1, Sg, S2, Sv2; torch.cuda.empty_cache()
     return res
 
 
