@@ -1,0 +1,16 @@
+model: DRAGON
+
+# DRAGON (ECAI 2023) — ported into this framework (upstream: https://github.com/enoche/MMRec).
+# Dual-graph multimodal recommender: per-modality bipartite GCN + item-item KNN
+# graph + a vectorized user-user co-occurrence graph (R @ R^T, top-k neighbours).
+embedding_size: 64
+feat_embed_dim: 64
+n_mm_layers: 1          # item-item KNN-graph propagation layers (source: n_mm_layers)
+n_layers: 2            # (unused by DRAGON's own forward; kept for base-class default)
+knn_k: 10              # item-item modality KNN
+mm_image_weight: 0.1   # image/text mix in the multimodal item-item Laplacian
+aggr_mode: add         # Base_gcn aggregation (source yaml: ['add'])
+user_topk: 40          # self.k — top-k user neighbours aggregated per user
+reg_weight: 0.001      # preference / weight L2 reg (source search: 0.001 mid-range)
+learning_rate: 1.0e-4
+train_batch_size: 2048

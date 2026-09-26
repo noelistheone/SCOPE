@@ -1,0 +1,51 @@
+# ---- Secrets / credentials (never commit) ----
+.hf_token
+*.token
+*.key
+*.pem
+.env
+*credential*
+*secret*
+
+# ---- Data, features, checkpoints, results (regenerated, large) ----
+data/*/
+!data/README.md
+ckpts/
+results/
+logs/
+*.npy
+*.npz
+*.pt
+*.pth
+*.safetensors
+*.ckpt
+
+# ---- Images / media ----
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.mp4
+images/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+
+# ---- Experiment tracking / editors / OS ----
+wandb/
+runs/
+tensorboard/
+.vscode/
+.idea/
+.DS_Store

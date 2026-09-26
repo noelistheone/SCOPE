@@ -1,0 +1,15 @@
+# Amazon-Clothing (MMRec preprocessed).
+dataset: clothing
+data_path: data/clothing
+
+inter_file_name: clothing.inter
+inter_separator: "\t"
+
+user_id_field: userID
+item_id_field: itemID
+split_field: x_label
+
+vision_feature_file: image_feat.npy
+text_feature_file: text_feat.npy
+
+# n_users ~= 39387, n_items ~= 23033, n_interactions ~= 278677

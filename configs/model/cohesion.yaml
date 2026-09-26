@@ -1,0 +1,15 @@
+model: COHESION
+
+# COHESION (SIGIR 2025) — ported into this framework (official author implementation).
+# HP values are the source defaults / mid-of-grid recommended values
+# (from the official released configuration).
+embedding_size: 64
+feat_embed_dim: 64
+n_mm_layers: 1          # item-item mm_adj propagation layers (source default; self.n_layers)
+knn_k: 10               # kNN for item-item multimodal graph (source default)
+mm_image_weight: 0.1    # image/text weight in mm_adj (source default)
+num_layer: 2            # GCNLayer depth (source grid [1,2,3,4]; mid recommended)
+reg_weight: 0.001       # preference + weight_u L2 (source grid [0.1,0.01,0.001,0.0001])
+dropout: 0              # edge dropout for masked_adj (source grid [0])
+learning_rate: 0.001    # source grid [0.1,0.01,0.001,0.0001]
+train_batch_size: 2048
